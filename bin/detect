@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# bin/detect <build-dir>
+
+[ "$BUILDPACK_DEBUG" = "true" ] && set -x
+
+CHECK_JUST_FILE=${JUST_FILE:-justfile}
+
+if [ -f "$1/$CHECK_JUST_FILE" ]; then
+  echo "just"
+  exit 0
+fi
+
+echo "justfile not found!"
+exit 1
+

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# bin/compile <build_dir> <cache_dir>
+
+[ "$BUILDPACK_DEBUG" = "true" ] && set -x
+set -eo pipefail
+
+BUILD_DIR=${1:-}
+CACHE_DIR=${2:-}
+ENV_DIR=${3:-}
+
+echo $BUILD_DIR
+
+JUST_BIN_DIR=".scalingo/just/bin"
+JUST_PROFILE_SH="${BUILD_DIR}/.profile.d/just.sh"
+
+export PATH="$BUILD_DIR/$JUST_BIN_DIR":$PATH
+
+# download the just executable in the local bin folder
+mkdir -p "$BUILD_DIR/$JUST_BIN_DIR"
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to "$BUILD_DIR/$JUST_BIN_DIR"
+
+# write the .profile.d/just.sh file
+mkdir -p $(dirname $JUST_PROFILE_SH)
+touch "${JUST_PROFILE_SH}"
+cat > "${JUST_PROFILE_SH}" <<EOF
+export PATH=/app/${JUST_BIN_DIR}:\$PATH
+EOF
+chmod +x $JUST_PROFILE_SH
+
